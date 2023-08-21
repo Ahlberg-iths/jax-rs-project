@@ -4,8 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-
-import java.util.Objects;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 public class Footballer {
@@ -14,11 +13,14 @@ public class Footballer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     private String name;
+    @NotNull
     private String nationality;
+    @NotNull
     private String club;
 
-    Footballer(String name, String nationality, String club) {
+    public Footballer(String name, String nationality, String club) {
         this.name = name;
         this.nationality = nationality;
         this.club = club;
@@ -52,21 +54,6 @@ public class Footballer {
 
     public void setClub(String club) {
         this.club = club;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) return true;
-        if (obj == null || obj.getClass() != this.getClass()) return false;
-        var that = (Footballer) obj;
-        return Objects.equals(this.name, that.name) &&
-                Objects.equals(this.nationality, that.nationality) &&
-                Objects.equals(this.club, that.club);
-    }
-
-    @Override
-    public int hashCode() {
-        return 12;
     }
 
     @Override
