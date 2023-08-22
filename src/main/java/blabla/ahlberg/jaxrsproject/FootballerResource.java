@@ -5,6 +5,7 @@ import blabla.ahlberg.jaxrsproject.dto.FootballerWithIdDTO;
 import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.util.List;
@@ -19,32 +20,32 @@ public class FootballerResource {
     Mapper mapper;
 
     @GET
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON)
     public List<FootballerWithIdDTO> getAllFootballers() {
         return repo.findAll().stream().map(mapper::mapToFootballerWithIdDTO).toList();
     }
 
     @GET
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}")
     public FootballerWithIdDTO getFootballer(@PathParam("id") Long id) {
         return mapper.mapToFootballerWithIdDTO(repo.findOne(id));
     }
 
     @POST
-    @Consumes("application/json")
+    @Consumes(MediaType.APPLICATION_JSON)
     public Response postFootballer(FootballerDTO dto) {
         try {
             repo.insertOne(dto);
         } catch (ConstraintViolationException e) {
-            return Response.status(400).build();
+            return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        return Response.status(201).build();
+        return Response.status(Response.Status.CREATED).build();
     }
 
     @PUT
     @Path("/{id}")
-    @Consumes("application/json")
+    @Consumes(MediaType.APPLICATION_JSON)
     public void updateFootballer(@PathParam("id") Long id, FootballerDTO dto) {
         repo.updateOne(id, dto);
     }
