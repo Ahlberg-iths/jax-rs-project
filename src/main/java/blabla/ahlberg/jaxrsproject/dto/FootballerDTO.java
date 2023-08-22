@@ -1,4 +1,6 @@
 package blabla.ahlberg.jaxrsproject.dto;
 
-public record FootballerDTO(String name, String nationality, String club){
+import jakarta.validation.constraints.NotNull;
+
+public record FootballerDTO(@NotNull String name, @NotNull String nationality, @NotNull String club){
 }

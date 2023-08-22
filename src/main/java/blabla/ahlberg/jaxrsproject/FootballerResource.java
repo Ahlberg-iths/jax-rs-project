@@ -3,7 +3,9 @@ package blabla.ahlberg.jaxrsproject;
 import blabla.ahlberg.jaxrsproject.dto.FootballerDTO;
 import blabla.ahlberg.jaxrsproject.dto.FootballerWithIdDTO;
 import jakarta.inject.Inject;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Response;
 
 import java.util.List;
 
@@ -19,33 +21,31 @@ public class FootballerResource {
     @GET
     @Produces("application/json")
     public List<FootballerWithIdDTO> getAllFootballers() {
-        return repo.findAll().stream().map(
-                f -> mapper.mapToFootballerWithIdDTO(f))
-                .toList();
+        return repo.findAll().stream().map(mapper::mapToFootballerWithIdDTO).toList();
     }
 
     @GET
     @Produces("application/json")
     @Path("/{id}")
     public FootballerWithIdDTO getFootballer(@PathParam("id") Long id) {
-        var optionalFootballer = repo.findOne(id);
-        //TODO:: Exception handling if no footballer with that ID is found --> 404 - now is 500
-        return optionalFootballer.map(footballer -> mapper.mapToFootballerWithIdDTO(footballer)).orElseThrow();
+        return mapper.mapToFootballerWithIdDTO(repo.findOne(id));
     }
 
     @POST
     @Consumes("application/json")
-    public void postFootballer(FootballerDTO dto) {
-        //TODO:: Exception handling. ConstraintViolationException etc.
-        //TODO:: On Success --> return status code 201 - now is 204
-        repo.insertOne(dto);
+    public Response postFootballer(FootballerDTO dto) {
+        try {
+            repo.insertOne(dto);
+        } catch (ConstraintViolationException e) {
+            return Response.status(400).build();
+        }
+        return Response.status(201).build();
     }
 
     @PUT
     @Path("/{id}")
     @Consumes("application/json")
     public void updateFootballer(@PathParam("id") Long id, FootballerDTO dto) {
-        //TODO:: Exception handling. If not parsable/if no id found - now 500
         repo.updateOne(id, dto);
     }
 

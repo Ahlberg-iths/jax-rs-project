@@ -7,9 +7,11 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.NotFoundException;
 
 import java.util.List;
-import java.util.Optional;
 
 @Transactional
 @ApplicationScoped
@@ -26,27 +28,30 @@ public class FootballerRepo {
         entityManager.persist(footballer);
     }
 
-    Optional<Footballer> findOne(long id) {
-        return Optional.ofNullable(entityManager.find(Footballer.class, id));
+    Footballer findOne(long id) {
+        var footballer = entityManager.find(Footballer.class, id);
+        if (footballer == null) throw new NotFoundException();
+        return footballer;
     }
 
     List<Footballer> findAll() {
         return entityManager.createQuery("SELECT f FROM Footballer f", Footballer.class).getResultList();
     }
 
-    void updateOne(Long id, FootballerDTO dto) {
-        var footballerToUpdate = findOne(id);
-        footballerToUpdate.ifPresent(footballer -> {
-            footballer.setClub(dto.club());
-            footballer.setName(dto.name());
+    void updateOne(Long id, @Valid FootballerDTO dto) {
+        var footballer = findOne(id);
+        try {
             footballer.setNationality(dto.nationality());
-        });
-        //TODO:: Throw Exception if footballer not found
+            footballer.setName(dto.name());
+            footballer.setClub(dto.club());
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e);
+        }
     }
 
     void deleteOne(long id) {
         var footballer = findOne(id);
-        footballer.ifPresent(baller -> entityManager.remove(baller));
+        entityManager.remove(footballer);
     }
 
 }
